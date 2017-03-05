@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 
 import gson.HeWeatherBean;
 import gson.Weather;
+import gson.WeatherInfo;
 
 /**
  * Created by rookie on 2017/2/24.
@@ -76,14 +77,14 @@ public class Utility {
         }
         return false;
     }
-    public  static HeWeatherBean handleWeatherResponse(String response) {
+    public  static WeatherInfo handleWeatherResponse(String response) {
 
 
 //          JSONObject jsonObject = null;
            /* jsonObject = new JSONObject(response);
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
             String WeatherContent = jsonArray.get(0).toString();*/
-            return new Gson().fromJson(response, HeWeatherBean.class);
+            return new Gson().fromJson(response, WeatherInfo.class);
 
 
     }

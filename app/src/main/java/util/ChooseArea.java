@@ -71,7 +71,6 @@ public class ChooseArea extends Fragment {
                     String weatherId=countyList.get(position).getCountyCode();
                     Intent intent=new Intent(getActivity(), WeatherActivity.class);
                     intent.putExtra("weather",weatherId);
-                    Toast.makeText(getActivity(),weatherId,Toast.LENGTH_SHORT).show();
                     startActivity(intent);
                     getActivity().finish();
                 }
