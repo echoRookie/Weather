@@ -88,6 +88,7 @@ public class WeatherActivity extends AppCompatActivity {
               drawerLayout.openDrawer(GravityCompat.START);
             }
         });
+
        //SharedPreferences pres= PreferenceManager.getDefaultSharedPreferences(this);
         /*String weatherString=pres.getString("weather",null);
         if(weatherString!=null){
