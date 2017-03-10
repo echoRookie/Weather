@@ -20,14 +20,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.rookie.weather.db.County;
+import com.example.rookie.weather.db.WeatherData;
 import com.google.gson.Gson;
+
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.util.List;
 
 import gson.Forcast;
 import gson.HeWeatherBean;
-import gson.Weather;
 import gson.WeatherInfo;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -89,41 +92,30 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
 
-       //SharedPreferences pres= PreferenceManager.getDefaultSharedPreferences(this);
-        /*String weatherString=pres.getString("weather",null);
+        SharedPreferences pres= PreferenceManager.getDefaultSharedPreferences(this);
+        String weatherString=pres.getString("weather",null);
         if(weatherString!=null){
-            HeWeatherBean weather= Utility.handleWeatherResponse(weatherString);
+            WeatherInfo weather=new Gson().fromJson(weatherString,WeatherInfo.class);
             showWeatherInfo(weather);
+            loadPic();
         }
         else{
-
-
-            //scrollView.setVisibility(View.INVISIBLE);
+            String weatherId=getIntent().getStringExtra("weatherId");
             requestWeather(weatherId);
-
-        }*/
-        final String weatherId=getIntent().getStringExtra("weather");
-        requestWeather(weatherId);
-        loadPic();
+            loadPic();
+        }
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestWeather(weatherId);
+                 String city=cityName.getText().toString();
+                 County county= DataSupport.select("countyCode").where("countyName = ?",city).findFirst(County.class);
+                 requestWeather(county.getCountyCode());
             }
         });
-             /*runOnUiThread(new Runnable() {
-                 @Override
-                 public void run() {
-                     WeatherInfo weather=Utility.handleWeatherResponse(Test);
-                     showWeatherInfo(weather);
-
-                 }
-             });*/
-
 
 
     }
-    public void requestWeather(String weatherId){
+    public void requestWeather(final String weatherId){
         String address="http://guolin.tech/api/weather?cityid="+weatherId+"&key=af14d8331fee40a2838b044198d4e6f7";
         OkHttpClient client=new OkHttpClient();
         client.newCall(new Request.Builder().url(address).build()).enqueue(new Callback() {
@@ -135,18 +127,30 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                final String responseInfo=response.body().string();
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
-
                         WeatherInfo weather=new Gson().fromJson(responseInfo,WeatherInfo.class);
-                       showWeatherInfo(weather);
+                        WeatherData weatherData=new WeatherData();
+                        weatherData.setCountyName(weather.heWeathers.get(0).basic.cityname);
+                        weatherData.setWeatherId(weatherId);
+                        weatherData.setWeatherData(responseInfo);
+                        weatherData.save();
+                       SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                        editor.putString("weather",responseInfo);
+                        editor.apply();
+                         showWeatherInfo(weather);
+                        County county=new County();
+                        county.setCountyName(weather.heWeathers.get(0).basic.cityname);
+                        county.setCountyCode(weatherId);
+                        county.save();
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
         });
+
     }
 
     public void showWeatherInfo( WeatherInfo weather){
