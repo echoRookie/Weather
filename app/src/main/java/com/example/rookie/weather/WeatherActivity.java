@@ -1,17 +1,26 @@
 package com.example.rookie.weather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,10 +36,9 @@ import com.google.gson.Gson;
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import gson.Forcast;
-import gson.HeWeatherBean;
 import gson.WeatherInfo;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -53,10 +61,12 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView comfortTxt;
     private TextView carWashTxt;
     private TextView sportTxt;
-    private String Test;
     public SwipeRefreshLayout swipeRefreshLayout;
     private Button button;
     public DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private ViewPager viewPager;
+    private List<View> viewList;
 
 
     @Override
@@ -85,24 +95,81 @@ public class WeatherActivity extends AppCompatActivity {
         carWashTxt=(TextView)findViewById(R.id.car_wash);
         sportTxt=(TextView)findViewById(R.id.sport);
         imageView = (ImageView)findViewById(R.id.background) ;
+       /* viewPager = (ViewPager) findViewById(R.id.viewpager_weather);
+       final  PagerAdapter pagerAdapter=new PagerAdapter() {
+            @Override
+            public int getCount() {
+                return viewList.size();
+            }
+
+            @Override
+            public boolean isViewFromObject(View view, Object object) {
+                return view==object;
+            }
+            @Override
+            public void destroyItem(ViewGroup container, int position,
+                                    Object object) {
+                // TODO Auto-generated method stub
+                container.removeView(viewList.get(position));
+            }
+
+            @Override
+            public Object instantiateItem(ViewGroup container, int position) {
+                // TODO Auto-generated method stub
+                container.addView(viewList.get(position));
+
+
+                return viewList.get(position);
+            }
+
+
+
+        };
+        viewPager.setAdapter(pagerAdapter);*/
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
               drawerLayout.openDrawer(GravityCompat.START);
             }
         });
-
+        navigationView=(NavigationView)findViewById(R.id.na_view) ;
         SharedPreferences pres= PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString=pres.getString("weather",null);
+        String weatherString=pres.getString("flag",null);
         if(weatherString!=null){
-            WeatherInfo weather=new Gson().fromJson(weatherString,WeatherInfo.class);
+             /*loadViewPager(pagerAdapter);*/
+            WeatherData weatherData=DataSupport.findLast(WeatherData.class);
+            WeatherInfo weather=new Gson().fromJson(weatherData.getWeatherData(),WeatherInfo.class);
             showWeatherInfo(weather);
             loadPic();
+            //Toast.makeText(this,"111",Toast.LENGTH_SHORT).show();
         }
         else{
             String weatherId=getIntent().getStringExtra("weatherId");
-            requestWeather(weatherId);
+            /*View view=LayoutInflater.from(this).inflate(R.layout.viewpager_item,viewPager,false);
+            scrollView=(ScrollView) findViewById(R.id.scrollViewWeather);
+            cityName=(TextView)findViewById(R.id.title_city);
+            updateTime=(TextView)findViewById(R.id.title_update);
+            degree=(TextView)findViewById(R.id.degree1);
+            weatherTnfoTxt=(TextView)findViewById(R.id.weather_info_text);
+            forcastLayout=(LinearLayout)findViewById(R.id.forcast_layout_weather);
+            api=(TextView)findViewById(R.id.api_weather);
+            pm25=(TextView)findViewById(R.id.pm25_weather);
+            comfortTxt=(TextView)findViewById(R.id.comfort);
+            carWashTxt=(TextView)findViewById(R.id.car_wash);
+            sportTxt=(TextView)findViewById(R.id.sport);
+
+            WeatherData weatherData=DataSupport.findLast(WeatherData.class);
+            WeatherInfo weather=new Gson().fromJson(weatherData.getWeatherData(),WeatherInfo.class);
+            showWeatherInfo(weather);
             loadPic();
+            viewList.add(view);
+            pagerAdapter.notifyDataSetChanged();*/
+            requestWeather(weatherId);
+             loadPic();
+            SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+            editor.putString("flag","true");
+            editor.apply();
+
         }
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -113,7 +180,18 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
 
-
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if(item.getItemId()==R.id.nav_citymanage){
+                    Intent intent=new Intent(WeatherActivity.this,Main2Activity.class);
+                    startActivity(intent);
+                    drawerLayout.closeDrawers();
+                    finish();
+                }
+                return true;
+            }
+        });
     }
     public void requestWeather(final String weatherId){
         String address="http://guolin.tech/api/weather?cityid="+weatherId+"&key=af14d8331fee40a2838b044198d4e6f7";
@@ -137,8 +215,8 @@ public class WeatherActivity extends AppCompatActivity {
                         weatherData.setWeatherId(weatherId);
                         weatherData.setWeatherData(responseInfo);
                         weatherData.save();
-                       SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                        editor.putString("weather",responseInfo);
+                        SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                        editor.putString("flag","true");
                         editor.apply();
                          showWeatherInfo(weather);
                         County county=new County();
@@ -206,6 +284,30 @@ public class WeatherActivity extends AppCompatActivity {
 
             }
         });
+    }
+    public void loadViewPager(PagerAdapter adapter){
+
+        List<WeatherData>  weatherData=DataSupport.findAll(WeatherData.class);
+        for (int i=0;i<weatherData.size();i++){
+        WeatherInfo weather=new Gson().fromJson(weatherData.get(i).getWeatherData(),WeatherInfo.class);
+            View view=LayoutInflater.from(this).inflate(R.layout.viewpager_item,viewPager,false);
+            scrollView=(ScrollView) findViewById(R.id.scrollViewWeather);
+            cityName=(TextView)findViewById(R.id.title_city);
+            updateTime=(TextView)findViewById(R.id.title_update);
+            degree=(TextView)findViewById(R.id.degree1);
+            weatherTnfoTxt=(TextView)findViewById(R.id.weather_info_text);
+            forcastLayout=(LinearLayout)findViewById(R.id.forcast_layout_weather);
+            api=(TextView)findViewById(R.id.api_weather);
+            pm25=(TextView)findViewById(R.id.pm25_weather);
+            comfortTxt=(TextView)findViewById(R.id.comfort);
+            carWashTxt=(TextView)findViewById(R.id.car_wash);
+            sportTxt=(TextView)findViewById(R.id.sport);
+        showWeatherInfo(weather);
+        loadPic();
+        viewList.add(view);
+            adapter.notifyDataSetChanged();
+            drawerLayout.closeDrawers();
+        }
     }
 
 

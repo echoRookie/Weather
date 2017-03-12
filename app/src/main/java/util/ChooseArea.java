@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.rookie.weather.Main2Activity;
 import com.example.rookie.weather.MainActivity;
 import com.example.rookie.weather.R;
 
@@ -79,6 +80,12 @@ public class ChooseArea extends Fragment {
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefreshLayout.setRefreshing(true);
                         activity.requestWeather(weatherId);
+                    }
+                    else if(getActivity() instanceof Main2Activity){
+                        Intent intent=new Intent(getActivity(), WeatherActivity.class);
+                        intent.putExtra("weatherId",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
                     }
                 }
             }

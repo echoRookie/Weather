@@ -1,22 +1,18 @@
 package com.example.rookie.weather;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity {
+public class Main2Activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SharedPreferences editor= PreferenceManager.getDefaultSharedPreferences(this);
-        if(editor.getString("flag",null)!=null){
-            Intent intent=new Intent(this,WeatherActivity.class);
-            startActivity(intent);
-            finish();
-        }
+        SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(Main2Activity.this).edit();
+        editor.putString("flag",null);
+        editor.apply();
     }
 }

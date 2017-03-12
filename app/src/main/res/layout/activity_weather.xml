@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout android:layout_height="match_parent"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <ImageView
         android:layout_width="match_parent"
@@ -34,12 +35,12 @@
         </LinearLayout>
     </ScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
-        <fragment
-            android:layout_gravity="start"
-            android:id="@+id/fragmentWeather"
+        <android.support.design.widget.NavigationView
             android:layout_width="match_parent"
+            android:id="@+id/na_view"
             android:layout_height="match_parent"
-            android:name="util.ChooseArea"
-            />
+            android:layout_gravity="start"
+            app:menu="@menu/na_menu"
+            app:headerLayout="@layout/nav_header"></android.support.design.widget.NavigationView>
     </android.support.v4.widget.DrawerLayout>
 </FrameLayout>

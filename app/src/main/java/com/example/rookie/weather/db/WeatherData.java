@@ -1,10 +1,12 @@
 package com.example.rookie.weather.db;
 
+import org.litepal.crud.DataSupport;
+
 /**
  * Created by rookie on 2017/3/10.
  */
 
-public class WeatherData {
+public class WeatherData extends DataSupport {
     public int getId() {
         return id;
     }

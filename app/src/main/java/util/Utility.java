@@ -12,8 +12,7 @@ import com.example.rookie.weather.db.County;
 import com.example.rookie.weather.db.Province;
 import com.google.gson.Gson;
 
-import gson.HeWeatherBean;
-import gson.Weather;
+
 import gson.WeatherInfo;
 
 /**
