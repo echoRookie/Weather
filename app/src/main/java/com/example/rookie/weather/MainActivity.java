@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SharedPreferences editor= PreferenceManager.getDefaultSharedPreferences(this);
-        if(editor.getString("flag",null)!=null){
+        if(editor.getString("infoFlag",null)!=null){
             Intent intent=new Intent(this,WeatherActivity.class);
             startActivity(intent);
             finish();

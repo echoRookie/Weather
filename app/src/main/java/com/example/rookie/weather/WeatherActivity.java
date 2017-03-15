@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -46,11 +47,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import util.HttpUtil;
+import util.ItemPagerAdapter;
+import util.PagerFragment;
 import util.Utility;
 
 public class WeatherActivity extends AppCompatActivity {
-    private ImageView imageView;
-    private ScrollView scrollView;
+   // private ImageView imageView;
+   /* private ScrollView scrollView;
     private TextView cityName;
     private TextView updateTime;
     private TextView degree;
@@ -60,13 +63,13 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView pm25;
     private TextView comfortTxt;
     private TextView carWashTxt;
-    private TextView sportTxt;
-    public SwipeRefreshLayout swipeRefreshLayout;
-    private Button button;
+    private TextView sportTxt;*/
+    //public SwipeRefreshLayout swipeRefreshLayout;
+    //private Button button;
     public DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ViewPager viewPager;
-    private List<View> viewList;
+    private ArrayList<Fragment> viewList=new ArrayList<>();
 
 
     @Override
@@ -79,11 +82,11 @@ public class WeatherActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
         setContentView(R.layout.activity_weather);
-        button = (Button)findViewById(R.id.backhome);
+        //button = (Button)findViewById(R.id.backhome);
         drawerLayout =(DrawerLayout)findViewById(R.id.drawer) ;
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-        scrollView=(ScrollView) findViewById(R.id.scrollViewWeather);
+        //swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+        //swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        /*scrollView=(ScrollView) findViewById(R.id.scrollViewWeather);
         cityName=(TextView)findViewById(R.id.title_city);
         updateTime=(TextView)findViewById(R.id.title_update);
         degree=(TextView)findViewById(R.id.degree1);
@@ -93,92 +96,83 @@ public class WeatherActivity extends AppCompatActivity {
         pm25=(TextView)findViewById(R.id.pm25_weather);
         comfortTxt=(TextView)findViewById(R.id.comfort);
         carWashTxt=(TextView)findViewById(R.id.car_wash);
-        sportTxt=(TextView)findViewById(R.id.sport);
-        imageView = (ImageView)findViewById(R.id.background) ;
-       /* viewPager = (ViewPager) findViewById(R.id.viewpager_weather);
-       final  PagerAdapter pagerAdapter=new PagerAdapter() {
-            @Override
-            public int getCount() {
-                return viewList.size();
-            }
-
-            @Override
-            public boolean isViewFromObject(View view, Object object) {
-                return view==object;
-            }
-            @Override
-            public void destroyItem(ViewGroup container, int position,
-                                    Object object) {
-                // TODO Auto-generated method stub
-                container.removeView(viewList.get(position));
-            }
-
-            @Override
-            public Object instantiateItem(ViewGroup container, int position) {
-                // TODO Auto-generated method stub
-                container.addView(viewList.get(position));
-
-
-                return viewList.get(position);
-            }
-
-
-
-        };
-        viewPager.setAdapter(pagerAdapter);*/
-        button.setOnClickListener(new View.OnClickListener() {
+        sportTxt=(TextView)findViewById(R.id.sport);*/
+        //imageView = (ImageView)findViewById(R.id.background) ;
+        viewPager = (ViewPager) findViewById(R.id.viewpager_weather);
+        ItemPagerAdapter pagerAdapter=new ItemPagerAdapter(getSupportFragmentManager(),viewList);
+        viewPager.setAdapter(pagerAdapter);
+        /*button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
               drawerLayout.openDrawer(GravityCompat.START);
             }
-        });
+        });*/
         navigationView=(NavigationView)findViewById(R.id.na_view) ;
         SharedPreferences pres= PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString=pres.getString("flag",null);
-        if(weatherString!=null){
-             /*loadViewPager(pagerAdapter);*/
-            WeatherData weatherData=DataSupport.findLast(WeatherData.class);
+        String weatherString=pres.getString("infoFlag",null);
+        boolean add=pres.getBoolean("add",false);
+        if(weatherString!=null&&!add){
+            List<WeatherData> list=DataSupport.findAll(WeatherData.class);
+            for (int i=0;i<list.size();i++)
+            {
+                PagerFragment pagerFragment=new PagerFragment();
+                Bundle bundle=new Bundle();
+                bundle.putString("weatherInfo",list.get(i).getWeatherData());
+                pagerFragment.setArguments(bundle);
+                viewList.add(pagerFragment);
+                Log.d("WeatherActivity", "onCreate: " + viewList.size());
+
+            }
+            pagerAdapter.notifyDataSetChanged();
+            //loadPic();
+            /*WeatherData weatherData=DataSupport.findLast(WeatherData.class);
             WeatherInfo weather=new Gson().fromJson(weatherData.getWeatherData(),WeatherInfo.class);
             showWeatherInfo(weather);
-            loadPic();
+            loadPic();*/
             //Toast.makeText(this,"111",Toast.LENGTH_SHORT).show();
+        }
+        else if(weatherString!=null&&add){
+            String weatherId=getIntent().getStringExtra("weatherId");
+            PagerFragment pagerFragment=new PagerFragment();
+            Bundle bundle=new Bundle();
+            bundle.putString("weatherId",weatherId);
+            pagerFragment.setArguments(bundle);
+            viewList.add(pagerFragment);
+            pagerAdapter.notifyDataSetChanged();
+            SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+            editor.putBoolean("add",false);
+            editor.apply();
+
         }
         else{
             String weatherId=getIntent().getStringExtra("weatherId");
-            /*View view=LayoutInflater.from(this).inflate(R.layout.viewpager_item,viewPager,false);
-            scrollView=(ScrollView) findViewById(R.id.scrollViewWeather);
-            cityName=(TextView)findViewById(R.id.title_city);
-            updateTime=(TextView)findViewById(R.id.title_update);
-            degree=(TextView)findViewById(R.id.degree1);
-            weatherTnfoTxt=(TextView)findViewById(R.id.weather_info_text);
-            forcastLayout=(LinearLayout)findViewById(R.id.forcast_layout_weather);
-            api=(TextView)findViewById(R.id.api_weather);
-            pm25=(TextView)findViewById(R.id.pm25_weather);
-            comfortTxt=(TextView)findViewById(R.id.comfort);
-            carWashTxt=(TextView)findViewById(R.id.car_wash);
-            sportTxt=(TextView)findViewById(R.id.sport);
-
-            WeatherData weatherData=DataSupport.findLast(WeatherData.class);
-            WeatherInfo weather=new Gson().fromJson(weatherData.getWeatherData(),WeatherInfo.class);
-            showWeatherInfo(weather);
-            loadPic();
-            viewList.add(view);
-            pagerAdapter.notifyDataSetChanged();*/
+            PagerFragment pagerFragment=new PagerFragment();
+            Bundle bundle=new Bundle();
+            bundle.putString("weatherId",weatherId);
+            pagerFragment.setArguments(bundle);
+            viewList.add(pagerFragment);
+            pagerAdapter.notifyDataSetChanged();
+           // loadPic();
+           /* String weatherId=getIntent().getStringExtra("weatherId");
             requestWeather(weatherId);
              loadPic();
             SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
             editor.putString("flag","true");
-            editor.apply();
+            editor.apply();*/
+
+
+
+
 
         }
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        /*swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                  String city=cityName.getText().toString();
                  County county= DataSupport.select("countyCode").where("countyName = ?",city).findFirst(County.class);
                  requestWeather(county.getCountyCode());
             }
-        });
+        });*/
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -189,11 +183,17 @@ public class WeatherActivity extends AppCompatActivity {
                     drawerLayout.closeDrawers();
                     finish();
                 }
+                if(item.getItemId()==R.id.nav_first){
+                    Intent intent=new Intent(WeatherActivity.this,WeatherActivity.class);
+                    startActivity(intent);
+                    drawerLayout.closeDrawers();
+                    finish();
+                }
                 return true;
             }
         });
     }
-    public void requestWeather(final String weatherId){
+    /*public void requestWeather(final String weatherId){
         String address="http://guolin.tech/api/weather?cityid="+weatherId+"&key=af14d8331fee40a2838b044198d4e6f7";
         OkHttpClient client=new OkHttpClient();
         client.newCall(new Request.Builder().url(address).build()).enqueue(new Callback() {
@@ -263,8 +263,8 @@ public class WeatherActivity extends AppCompatActivity {
         carWashTxt.setText(carwash);
         sportTxt.setText(sport);
         scrollView.setVisibility(View.VISIBLE);
-    }
-    public void loadPic(){
+    }*/
+    /*public void loadPic(){
         final String requeatBinPic="http://guolin.tech/api/bing_pic";
         HttpUtil.sendOkHttpRequest(requeatBinPic, new Callback() {
             @Override
@@ -284,12 +284,12 @@ public class WeatherActivity extends AppCompatActivity {
 
             }
         });
-    }
-    public void loadViewPager(PagerAdapter adapter){
+    }*/
+    /*public void loadViewPager(PagerAdapter adapter){
 
         List<WeatherData>  weatherData=DataSupport.findAll(WeatherData.class);
         for (int i=0;i<weatherData.size();i++){
-        WeatherInfo weather=new Gson().fromJson(weatherData.get(i).getWeatherData(),WeatherInfo.class);
+            WeatherInfo weather=new Gson().fromJson(weatherData.get(i).getWeatherData(),WeatherInfo.class);
             View view=LayoutInflater.from(this).inflate(R.layout.viewpager_item,viewPager,false);
             scrollView=(ScrollView) findViewById(R.id.scrollViewWeather);
             cityName=(TextView)findViewById(R.id.title_city);
@@ -302,13 +302,13 @@ public class WeatherActivity extends AppCompatActivity {
             comfortTxt=(TextView)findViewById(R.id.comfort);
             carWashTxt=(TextView)findViewById(R.id.car_wash);
             sportTxt=(TextView)findViewById(R.id.sport);
-        showWeatherInfo(weather);
-        loadPic();
-        viewList.add(view);
+            showWeatherInfo(weather);
+            loadPic();
+            viewList.add(view);
             adapter.notifyDataSetChanged();
             drawerLayout.closeDrawers();
         }
     }
-
+*/
 
 }

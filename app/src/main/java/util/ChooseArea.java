@@ -2,9 +2,12 @@ package util;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +32,8 @@ import com.example.rookie.weather.WeatherActivity;
 import com.example.rookie.weather.db.City;
 import com.example.rookie.weather.db.County;
 import com.example.rookie.weather.db.Province;
+import com.example.rookie.weather.db.WeatherData;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -75,16 +80,20 @@ public class ChooseArea extends Fragment {
                     intent.putExtra("weatherId",weatherId);
                     startActivity(intent);
                     getActivity().finish();}
-                    else if(getActivity() instanceof WeatherActivity){
+                    /*else if(getActivity() instanceof WeatherActivity){
                         WeatherActivity activity=(WeatherActivity)getActivity();
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefreshLayout.setRefreshing(true);
                         activity.requestWeather(weatherId);
-                    }
-                    else if(getActivity() instanceof Main2Activity){
+                    }*/
+                    if(getActivity() instanceof Main2Activity){
                         Intent intent=new Intent(getActivity(), WeatherActivity.class);
                         intent.putExtra("weatherId",weatherId);
                         startActivity(intent);
+                        Toast.makeText(getActivity(),weatherId,Toast.LENGTH_SHORT).show();
+                        SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                        editor.putBoolean("add",true);
+                        editor.apply();
                         getActivity().finish();
                     }
                 }
