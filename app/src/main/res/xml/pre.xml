@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="系统">
+
+    </PreferenceCategory>
+    <SwitchPreference
+        android:defaultValue="false"
+        android:title="通知栏常驻"
+        android:key="switch_preference_1" />
+    <ListPreference
+        android:defaultValue="1"
+        android:title="设置刷新频率"
+        android:entries="@array/list_preference_entries"
+        android:entryValues="@array/list_preference_entries"
+        android:key="list_preference_1" />
+    <PreferenceScreen
+        android:title="关于我">
+
+    </PreferenceScreen>
+</PreferenceScreen>

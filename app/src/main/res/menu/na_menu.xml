@@ -8,9 +8,12 @@
               android:title="首页"></item>
         <item android:id="@+id/nav_citymanage"
             android:icon="@drawable/citymanage"
-            android:title="城市管理"></item>
+            android:title="城市切换"></item>
         <item android:id="@+id/nav_setting"
             android:icon="@drawable/setting"
             android:title="设置"></item>
+        <item android:id="@+id/nav_city_list"
+            android:icon="@drawable/setting"
+            android:title="多城市管理"></item>
     </group>
 </menu>

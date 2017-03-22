@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -51,6 +55,7 @@ public class PagerFragment extends Fragment {
     private TextView sportTxt;
     public SwipeRefreshLayout swipeRefreshLayout;
     private ImageView imageView;
+    private Button button;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,6 +74,14 @@ public class PagerFragment extends Fragment {
         carWashTxt=(TextView)view.findViewById(R.id.car_wash);
         sportTxt=(TextView)view.findViewById(R.id.sport);
         imageView=(ImageView)view.findViewById(R.id.background) ;
+        button=(Button)view.findViewById(R.id.backhome) ;
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DrawerLayout drawerLayout=(DrawerLayout) getActivity().findViewById(R.id.drawer);
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
         String weatherId=(String)getArguments().get("weatherId");
         String weatherInfo=(String)getArguments().get("weatherInfo");
         if(weatherInfo!=null){
@@ -150,6 +163,9 @@ public class PagerFragment extends Fragment {
                     public void run() {
                         WeatherInfo weather=new Gson().fromJson(responseInfo,WeatherInfo.class);
                         showWeatherInfo(weather);
+                        WeatherData data=new WeatherData();
+                        data.setWeatherData(responseInfo);
+                        data.updateAll("WeatherId=?",weatherId);
                         loadPic();
                         swipeRefreshLayout.setRefreshing(false);
                     }

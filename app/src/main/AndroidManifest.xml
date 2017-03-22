@@ -28,6 +28,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.rookie.weather.WeatherActivity" />
         </activity>
+        <activity android:name=".Seeting" />
+        <activity android:name=".WeatherActivity$SettingActivity" />
+        <activity android:name=".SettingActivity" />
+        <activity android:name=".CityManage"></activity>
     </application>
 
 </manifest>

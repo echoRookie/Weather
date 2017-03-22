@@ -9,47 +9,22 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.example.rookie.weather.db.County;
 import com.example.rookie.weather.db.WeatherData;
-import com.google.gson.Gson;
 
 import org.litepal.crud.DataSupport;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import gson.WeatherInfo;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import util.HttpUtil;
 import util.ItemPagerAdapter;
 import util.PagerFragment;
-import util.Utility;
 
 public class WeatherActivity extends AppCompatActivity {
    // private ImageView imageView;
@@ -189,6 +164,18 @@ public class WeatherActivity extends AppCompatActivity {
                     drawerLayout.closeDrawers();
                     finish();
                 }
+                if(item.getItemId()==R.id.nav_setting){
+                    Intent intent=new Intent(WeatherActivity.this,SettingActivity.class);
+                    startActivity(intent);
+                    drawerLayout.closeDrawers();
+                    finish();
+                }
+                if(item.getItemId()==R.id.nav_city_list){
+                    Intent intent=new Intent(WeatherActivity.this,CityManage.class);
+                    startActivity(intent);
+                    drawerLayout.closeDrawers();
+                    finish();
+                }
                 return true;
             }
         });
@@ -311,4 +298,13 @@ public class WeatherActivity extends AppCompatActivity {
     }
 */
 
+    public static class SettingActivity extends AppCompatActivity {
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_setting);
+            this.getFragmentManager().beginTransaction().replace(R.id.framlayout,new BlankFragment()).commit();
+        }
+    }
 }
