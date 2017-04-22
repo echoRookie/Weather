@@ -11,5 +11,6 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
         this.getFragmentManager().beginTransaction().replace(R.id.framlayout,new BlankFragment()).commit();
         this.setTheme(R.style.AppTheme);
+
     }
 }
